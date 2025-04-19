@@ -1,0 +1,46 @@
+---
+import "../styles/global.css";
+import FeatureCard from "../components/FeatureCard.astro";
+
+const features = [
+  {
+    title: "Facturación Rápida",
+    description: "Crea facturas profesionales en segundos",
+    icon: "⚡",
+  },
+  {
+    title: "Gestión de Clientes",
+    description: "Mantén un registro organizado de tus clientes",
+    icon: "👥",
+  },
+  {
+    title: "Reportes Detallados",
+    description: "Analiza tus datos con reportes personalizados",
+    icon: "📊",
+  },
+];
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>WattInvoice - Facturación Inteligente</title>
+  </head>
+  <body class="bg-gray-50">
+    <main class="container mx-auto px-4 py-8">
+      <header class="text-center mb-16">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+          Bienvenido a WattInvoice
+        </h1>
+        <p class="text-xl text-gray-600">
+          La solución moderna para tu facturación
+        </p>
+      </header>
+
+      <section class="grid md:grid-cols-3 gap-8">
+        {features.map((feature) => <FeatureCard {...feature} />)}
+      </section>
+    </main>
+  </body>
+</html>
