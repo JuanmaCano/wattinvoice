@@ -1,4 +1,5 @@
 import EnergyBill from "./EnergyBill.jsx";
+import consumo from "./data/consumo.json";
 
 const billData = [
   { label: "Monedero acumulado", value: "0,00 €" },
@@ -17,6 +18,8 @@ const billData = [
   { label: "Monedero", value: "0" },
   { label: "TOTAL A PAGAR", value: "47,14 €", highlight: "positive" },
 ];
+
+console.log(consumo);
 
 function App() {
   return <EnergyBill data={billData} month="enero 2025" />;
