@@ -15,6 +15,7 @@ import {
   useUser,
   useClerk,
 } from "@clerk/clerk-react";
+import { MyInvoices } from "./components/MyInvoices";
 
 export default function App() {
   return (
@@ -23,17 +24,19 @@ export default function App() {
         <header className="flex justify-between items-center px-8 py-4 shadow bg-white">
           <h1 className="text-xl font-bold text-blue-700">WattInvoice</h1>
           <div className="flex items-center gap-3">
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
             <UserInfo />
           </div>
         </header>
+        <section className="p-8">
+          <MyInvoices />
+        </section>
       </SignedIn>
       <SignedOut>
         <div className="flex items-center justify-center min-h-[80vh]">
           <SignIn />
         </div>
       </SignedOut>
-      {/* ...aquí iría el resto de la app... */}
     </main>
   );
 }

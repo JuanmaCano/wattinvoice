@@ -1,0 +1,27 @@
+[
+  {
+    "mes": "2025-01",
+    "consumo_total_kWh": 247.764,
+    "energia_exportada_kWh": 195.185
+  },
+  {
+    "mes": "2025-02",
+    "consumo_total_kWh": 165.272,
+    "energia_exportada_kWh": 285.023
+  },
+  {
+    "mes": "2025-03",
+    "consumo_total_kWh": 165.45,
+    "energia_exportada_kWh": 402.08
+  },
+  {
+    "mes": "2025-04",
+    "consumo_total_kWh": 132.465,
+    "energia_exportada_kWh": 496.958
+  },
+  {
+    "mes": "2025-05",
+    "consumo_total_kWh": 88.722,
+    "energia_exportada_kWh": 385.343
+  }
+]
