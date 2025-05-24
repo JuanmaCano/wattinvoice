@@ -1,11 +1,8 @@
 import { useState, useMemo } from "react";
-import { useUser } from "@clerk/clerk-react";
 import { InvoicePerMonth } from "./InvoicePerMonth";
 import data from "../data/consumo-x-mes.json";
 
 export const MyInvoices = () => {
-  const { user } = useUser();
-
   const months = data.map((item) => item.mes.split("-")[1]);
   const uniqueMonths = [...new Set(months)];
 
@@ -15,11 +12,6 @@ export const MyInvoices = () => {
     : uniqueMonths[0];
 
   const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
-
-  // TODO: solo habilitado para mi, de momento
-  const id = "user_2wxlvJyCAvhqo3G92Sm4oiA4xgH";
-
-  const notAllowed = !user || user.id != id;
 
   const monthNames = [
     "January",
@@ -39,15 +31,6 @@ export const MyInvoices = () => {
   const selectedData = useMemo(() => {
     return data.find((item) => item.mes.split("-")[1] === selectedMonth);
   }, [selectedMonth]);
-
-  if (notAllowed) {
-    return (
-      <p>
-        <span className="font-bold">{user.fullName}, </span> aún no tenemos
-        datos para estimar tu facturación
-      </p>
-    );
-  }
 
   return (
     <>
