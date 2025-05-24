@@ -1,8 +1,10 @@
 import { useState, useMemo } from "react";
 import { InvoicePerMonth } from "./InvoicePerMonth";
+import { useAuth } from "../contexts/AuthContext";
 import data from "../data/consumo-x-mes.json";
 
 export const MyInvoices = () => {
+  const { user } = useAuth();
   const months = data.map((item) => item.mes.split("-")[1]);
   const uniqueMonths = [...new Set(months)];
 
@@ -31,6 +33,16 @@ export const MyInvoices = () => {
   const selectedData = useMemo(() => {
     return data.find((item) => item.mes.split("-")[1] === selectedMonth);
   }, [selectedMonth]);
+
+  if (!user || user.email !== "juanmacano@gmail.com") {
+    return (
+      <div className="text-center p-6 bg-white rounded-lg shadow-sm">
+        <p className="text-slate-600">
+          Aún no tenemos datos suficientes para mostrar tu facturación
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
