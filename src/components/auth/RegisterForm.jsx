@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useToast } from "../ui/ToastProvider";
+import toast from "react-hot-toast";
 
 export const RegisterForm = () => {
   const [email, setEmail] = useState("");
@@ -9,14 +9,13 @@ export const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const { register } = useAuth();
-  const { showToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     if (password !== confirmPassword) {
-      showToast("Las contraseñas no coinciden", { type: "error" });
+      toast.error("Las contraseñas no coinciden");
       setLoading(false);
       return;
     }
@@ -26,10 +25,10 @@ export const RegisterForm = () => {
       if (success) {
         setSuccess(true);
       } else {
-        showToast(error || "Error al registrar usuario", { type: "error" });
+        toast.error(error || "Error al registrar usuario");
       }
     } catch {
-      showToast("Error al registrar usuario", { type: "error" });
+      toast.error("Error al registrar usuario");
     } finally {
       setLoading(false);
     }

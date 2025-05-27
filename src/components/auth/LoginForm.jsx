@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { useToast } from "../ui/ToastProvider";
+import toast from "react-hot-toast";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
-  const { showToast } = useToast();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,10 +15,10 @@ export const LoginForm = () => {
     try {
       const { success, error } = await login(email, password);
       if (!success) {
-        showToast(error || "Error al iniciar sesión", { type: "error" });
+        toast.error(error || "Error al iniciar sesión");
       }
     } catch {
-      showToast("Error al iniciar sesión", { type: "error" });
+      toast.error("Error al iniciar sesión");
     } finally {
       setLoading(false);
     }
