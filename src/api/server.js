@@ -4,39 +4,29 @@ import express from "express";
 import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
-import dotenv from "dotenv";
-import { fileURLToPath } from "url";
-import { dirname, resolve } from "path";
-import { datadisLoginHandler } from "./handlers/datadis.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-// Cargar variables de entorno
-dotenv.config({ path: resolve(__dirname, "../../.env") });
+import { corsConfig, rateLimitConfig } from "./config.js";
+import { datadisLoginHandler } from "./datadis/login.js";
+import { datadisConsumptionHandler } from "./datadis/consumption.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors(corsConfig));
 app.use(helmet());
 app.use(express.json());
 
 // Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // límite de 100 peticiones por ventana
-});
-app.use(limiter);
+app.use(rateLimit(rateLimitConfig));
 
 // Rutas API
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Rutas
+// Rutas de Datadis
 app.post("/api/datadis/login", datadisLoginHandler);
+app.get("/api/datadis/consumption", datadisConsumptionHandler);
 
 // Iniciar servidor
 app.listen(port, () => {
