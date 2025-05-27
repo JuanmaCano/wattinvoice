@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import { useToast } from "../components/ui/Toast";
+import { useToast } from "../components/ui/ToastProvider";
 import {
   signInWithEmail,
   signUpWithEmail,

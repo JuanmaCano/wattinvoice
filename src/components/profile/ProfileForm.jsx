@@ -1,7 +1,8 @@
 import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfileForm } from "../../hooks/useProfileForm";
-import { Toast, useToast } from "../ui/Toast";
+import { useToast } from "../ui/ToastProvider";
+import { Toast } from "../ui/ToastProvider";
 
 const TokenStatus = ({ status }) => {
   if (!status.exists) {

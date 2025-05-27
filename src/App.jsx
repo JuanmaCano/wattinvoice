@@ -11,7 +11,7 @@ import { RegisterForm } from "./components/auth/RegisterForm";
 import { MyInvoices } from "./components/MyInvoices";
 import { ProfileForm } from "./components/profile/ProfileForm";
 import { Layout } from "./components/layout/Layout";
-import { ToastProvider } from "./components/ui/Toast";
+import { ToastProvider } from "./components/ui/ToastProvider";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
