@@ -11,7 +11,7 @@ import { RegisterForm } from "./components/auth/RegisterForm";
 import { MyInvoices } from "./components/MyInvoices";
 import { ProfileForm } from "./components/profile/ProfileForm";
 import { Layout } from "./components/layout/Layout";
-import { ToastProvider } from "./components/ui/ToastProvider";
+import { Toaster } from "react-hot-toast";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -53,44 +53,64 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <ToastProvider>
-          <Layout>
-            <Routes>
-              <Route
-                path="/"
-                element={
-                  <PrivateRoute>
-                    <MyInvoices />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <PrivateRoute>
-                    <ProfileForm />
-                  </PrivateRoute>
-                }
-              />
-              <Route
-                path="/login"
-                element={
-                  <AuthRoute>
-                    <LoginForm />
-                  </AuthRoute>
-                }
-              />
-              <Route
-                path="/register"
-                element={
-                  <AuthRoute>
-                    <RegisterForm />
-                  </AuthRoute>
-                }
-              />
-            </Routes>
-          </Layout>
-        </ToastProvider>
+        <Layout>
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <PrivateRoute>
+                  <MyInvoices />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/profile"
+              element={
+                <PrivateRoute>
+                  <ProfileForm />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <AuthRoute>
+                  <LoginForm />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <AuthRoute>
+                  <RegisterForm />
+                </AuthRoute>
+              }
+            />
+          </Routes>
+        </Layout>
+        <Toaster
+          position="top-right"
+          toastOptions={{
+            duration: 3000,
+            style: {
+              background: "#363636",
+              color: "#fff",
+            },
+            success: {
+              duration: 2000,
+              theme: {
+                primary: "#4aed88",
+              },
+            },
+            error: {
+              duration: 4000,
+              theme: {
+                primary: "#ff4b4b",
+              },
+            },
+          }}
+        />
       </AuthProvider>
     </Router>
   );

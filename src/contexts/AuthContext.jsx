@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
-import { useToast } from "../components/ui/ToastProvider";
+import toast from "react-hot-toast";
 import {
   signInWithEmail,
   signUpWithEmail,
@@ -14,7 +14,6 @@ const AuthContext = createContext({});
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const { showToast } = useToast();
 
   useEffect(() => {
     // Verificar sesión actual
@@ -28,7 +27,7 @@ export const AuthProvider = ({ children }) => {
         setUser(session?.user ?? null);
       } catch (error) {
         console.error("Error al verificar sesión:", error);
-        showToast("Error al verificar la sesión", { type: "error" });
+        toast.error("Error al verificar la sesión");
       } finally {
         setLoading(false);
       }
@@ -45,7 +44,7 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, [showToast]);
+  }, []);
 
   const login = async (email, password) => {
     try {
@@ -54,7 +53,7 @@ export const AuthProvider = ({ children }) => {
       return { success: true };
     } catch (error) {
       console.error("Error en login:", error);
-      showToast(error.message, { type: "error" });
+      toast.error(error.message);
       return { success: false, error: error.message };
     }
   };
@@ -63,13 +62,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const { error } = await signUpWithEmail(email, password);
       if (error) throw error;
-      showToast("Registro exitoso. Por favor, verifica tu email.", {
-        type: "success",
-      });
+      toast.success("Registro exitoso. Por favor, verifica tu email.");
       return { success: true };
     } catch (error) {
       console.error("Error en registro:", error);
-      showToast(error.message, { type: "error" });
+      toast.error(error.message);
       return { success: false, error: error.message };
     }
   };
@@ -77,11 +74,13 @@ export const AuthProvider = ({ children }) => {
   const logout = async () => {
     try {
       const { error } = await signOut();
-      if (error) throw error;
-      showToast("Sesión cerrada correctamente", { type: "success" });
-    } catch (error) {
-      console.error("Error en logout:", error);
-      showToast("Error al cerrar sesión", { type: "error" });
+      if (error) {
+        toast.error("Error al cerrar sesión");
+        return;
+      }
+      toast.success("Sesión cerrada correctamente");
+    } catch {
+      toast.error("Error al cerrar sesión");
     }
   };
 
@@ -89,11 +88,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const { error } = await resetPassword(email);
       if (error) throw error;
-      showToast("Instrucciones enviadas a tu email", { type: "success" });
+      toast.success("Instrucciones enviadas a tu email");
       return { success: true };
     } catch (error) {
       console.error("Error al solicitar reset:", error);
-      showToast(error.message, { type: "error" });
+      toast.error(error.message);
       return { success: false, error: error.message };
     }
   };
@@ -102,11 +101,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const { error } = await updatePassword(newPassword);
       if (error) throw error;
-      showToast("Contraseña actualizada correctamente", { type: "success" });
+      toast.success("Contraseña actualizada correctamente");
       return { success: true };
     } catch (error) {
       console.error("Error al actualizar contraseña:", error);
-      showToast(error.message, { type: "error" });
+      toast.error(error.message);
       return { success: false, error: error.message };
     }
   };
