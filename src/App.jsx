@@ -14,6 +14,8 @@ import { ProfileForm } from "./components/profile/ProfileForm";
 import { Layout } from "./components/layout/Layout";
 import { Toaster } from "react-hot-toast";
 import { useEffect } from "react";
+import { supabase } from "./lib/supabase";
+import { toast } from "react-hot-toast";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -53,13 +55,40 @@ const AuthRoute = ({ children }) => {
 
 const AuthCallback = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+    const handleCallback = async () => {
+      try {
+        // Obtener el hash de la URL
+        const hash = window.location.hash.substring(1);
+        if (hash) {
+          // Procesar el hash y actualizar la sesión
+          const params = new URLSearchParams(hash);
+          const accessToken = params.get("access_token");
+          const refreshToken = params.get("refresh_token");
+
+          if (accessToken) {
+            // Actualizar la sesión en Supabase
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+
+            if (error) throw error;
+          }
+        }
+
+        // Redirigir a la página principal
+        navigate("/", { replace: true });
+      } catch (error) {
+        console.error("Error en el callback de autenticación:", error);
+        toast.error("Error al procesar la autenticación");
+        navigate("/login", { replace: true });
+      }
+    };
+
+    handleCallback();
+  }, [navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
