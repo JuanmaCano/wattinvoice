@@ -1,20 +1,42 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { useToast } from "../components/ui/Toast";
+import {
+  signInWithEmail,
+  signUpWithEmail,
+  signOut,
+  resetPassword,
+  updatePassword,
+} from "../lib/auth";
 
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { showToast } = useToast();
 
   useEffect(() => {
     // Verificar sesión actual
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const checkUser = async () => {
+      try {
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        if (error) throw error;
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error("Error al verificar sesión:", error);
+        showToast("Error al verificar la sesión", { type: "error" });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    // Escuchar cambios en la autenticación
+    checkUser();
+
+    // Suscribirse a cambios en la autenticación
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -23,61 +45,83 @@ export const AuthProvider = ({ children }) => {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [showToast]);
 
-  const signIn = async (email, password) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) throw error;
+  const login = async (email, password) => {
+    try {
+      const { error } = await signInWithEmail(email, password);
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error("Error en login:", error);
+      showToast(error.message, { type: "error" });
+      return { success: false, error: error.message };
+    }
   };
 
-  const signInWithGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-    if (error) throw error;
+  const register = async (email, password) => {
+    try {
+      const { error } = await signUpWithEmail(email, password);
+      if (error) throw error;
+      showToast("Registro exitoso. Por favor, verifica tu email.", {
+        type: "success",
+      });
+      return { success: true };
+    } catch (error) {
+      console.error("Error en registro:", error);
+      showToast(error.message, { type: "error" });
+      return { success: false, error: error.message };
+    }
   };
 
-  const signInWithGithub = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: {
-        redirectTo: window.location.origin,
-      },
-    });
-    if (error) throw error;
+  const logout = async () => {
+    try {
+      const { error } = await signOut();
+      if (error) throw error;
+      showToast("Sesión cerrada correctamente", { type: "success" });
+    } catch (error) {
+      console.error("Error en logout:", error);
+      showToast("Error al cerrar sesión", { type: "error" });
+    }
   };
 
-  const signUp = async (email, password) => {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
+  const handleResetPassword = async (email) => {
+    try {
+      const { error } = await resetPassword(email);
+      if (error) throw error;
+      showToast("Instrucciones enviadas a tu email", { type: "success" });
+      return { success: true };
+    } catch (error) {
+      console.error("Error al solicitar reset:", error);
+      showToast(error.message, { type: "error" });
+      return { success: false, error: error.message };
+    }
   };
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+  const handleUpdatePassword = async (newPassword) => {
+    try {
+      const { error } = await updatePassword(newPassword);
+      if (error) throw error;
+      showToast("Contraseña actualizada correctamente", { type: "success" });
+      return { success: true };
+    } catch (error) {
+      console.error("Error al actualizar contraseña:", error);
+      showToast(error.message, { type: "error" });
+      return { success: false, error: error.message };
+    }
   };
 
   const value = {
     user,
     loading,
-    signIn,
-    signInWithGoogle,
-    signInWithGithub,
-    signUp,
-    signOut,
+    login,
+    register,
+    logout,
+    handleResetPassword,
+    handleUpdatePassword,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
@@ -87,3 +131,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthProvider;

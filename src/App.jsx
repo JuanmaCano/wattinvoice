@@ -11,6 +11,7 @@ import { RegisterForm } from "./components/auth/RegisterForm";
 import { MyInvoices } from "./components/MyInvoices";
 import { ProfileForm } from "./components/profile/ProfileForm";
 import { Layout } from "./components/layout/Layout";
+import { ToastProvider } from "./components/ui/Toast";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -52,42 +53,44 @@ const App = () => {
   return (
     <Router>
       <AuthProvider>
-        <Layout>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <MyInvoices />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/profile"
-              element={
-                <PrivateRoute>
-                  <ProfileForm />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/login"
-              element={
-                <AuthRoute>
-                  <LoginForm />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                <AuthRoute>
-                  <RegisterForm />
-                </AuthRoute>
-              }
-            />
-          </Routes>
-        </Layout>
+        <ToastProvider>
+          <Layout>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <PrivateRoute>
+                    <MyInvoices />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <PrivateRoute>
+                    <ProfileForm />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/login"
+                element={
+                  <AuthRoute>
+                    <LoginForm />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <AuthRoute>
+                    <RegisterForm />
+                  </AuthRoute>
+                }
+              />
+            </Routes>
+          </Layout>
+        </ToastProvider>
       </AuthProvider>
     </Router>
   );

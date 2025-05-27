@@ -1,210 +1,71 @@
-import { useState, useEffect } from "react";
+import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
-import { supabase } from "../../lib/supabase";
-import CryptoJS from "crypto-js";
+import { useProfileForm } from "../../hooks/useProfileForm";
+import { Toast, useToast } from "../ui/Toast";
 
-// Clave de encriptación - en producción debería estar en variables de entorno
-const ENCRYPTION_KEY =
-  import.meta.env.VITE_ENCRYPTION_KEY || "clave_temporal_para_desarrollo";
+const TokenStatus = ({ status }) => {
+  if (!status.exists) {
+    return (
+      <div className="mt-4 p-3 bg-yellow-50 text-yellow-700 rounded-lg text-sm">
+        No hay token de autenticación activo
+      </div>
+    );
+  }
 
-// Función para validar NIF español
-const validateNIF = (nif) => {
-  if (!nif) return { isValid: false, error: "El NIF es requerido" };
+  if (!status.isValid) {
+    return (
+      <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+        Token expirado. Por favor, prueba la autenticación de nuevo.
+      </div>
+    );
+  }
 
-  // Convertir a mayúsculas y eliminar espacios
-  nif = nif.toUpperCase().trim();
+  const timeLeft = new Date(status.expiresAt) - new Date();
+  const hoursLeft = Math.floor(timeLeft / (1000 * 60 * 60));
+  const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-  // Patrones de NIF válidos
-  const patterns = {
-    dni: /^[0-9]{8}[A-Z]$/, // DNI: 8 números + 1 letra
-    nie: /^[XYZ][0-9]{7}[A-Z]$/, // NIE: X/Y/Z + 7 números + 1 letra
-    cif: /^[A-HJNPQRSUVW][0-9]{7}[0-9A-J]$/, // CIF: Letra + 7 números + número o letra
-  };
-
-  // Verificar formato básico
-  const isValidFormat = Object.values(patterns).some((pattern) =>
-    pattern.test(nif)
+  return (
+    <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+      <div className="font-medium">Token de autenticación activo</div>
+      <div className="mt-1">
+        Expira en {hoursLeft}h {minutesLeft}m
+      </div>
+      <div className="mt-1 text-xs opacity-75">
+        Válido hasta: {new Date(status.expiresAt).toLocaleString()}
+      </div>
+      {status.shouldRenew && (
+        <div className="mt-2 text-amber-700">
+          El token está próximo a expirar. Se recomienda renovarlo.
+        </div>
+      )}
+    </div>
   );
-  if (!isValidFormat) {
-    return {
-      isValid: false,
-      error:
-        "Formato de NIF inválido. Debe ser DNI (8 números + letra), NIE (X/Y/Z + 7 números + letra) o CIF (letra + 7 números + número/letra)",
-    };
-  }
-
-  // Validación específica para DNI
-  if (patterns.dni.test(nif)) {
-    const dniNumber = parseInt(nif.slice(0, 8));
-    const dniLetter = nif.slice(8);
-    const validLetters = "TRWAGMYFPDXBNJZSQVHLCKE";
-    const expectedLetter = validLetters[dniNumber % 23];
-
-    if (dniLetter !== expectedLetter) {
-      return { isValid: false, error: "Letra de DNI inválida" };
-    }
-  }
-
-  return { isValid: true, error: null };
 };
 
 export const ProfileForm = () => {
   const { user } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [error, setError] = useState("");
-  const [formData, setFormData] = useState({
-    datadis_password: "",
-    nif: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [nifError, setNifError] = useState("");
-  const [validationErrors, setValidationErrors] = useState({
-    datadis_password: "",
-  });
-
-  // Función para encriptar la contraseña
-  const encryptPassword = (password) => {
-    if (!password) return null;
-    return CryptoJS.AES.encrypt(password, ENCRYPTION_KEY).toString();
-  };
-
-  // Función para desencriptar la contraseña
-  const decryptPassword = (encryptedPassword) => {
-    if (!encryptedPassword) return "";
-    try {
-      const bytes = CryptoJS.AES.decrypt(encryptedPassword, ENCRYPTION_KEY);
-      return bytes.toString(CryptoJS.enc.Utf8);
-    } catch (error) {
-      console.error("Error al desencriptar la contraseña:", error);
-      return "";
-    }
-  };
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-
-        if (error) throw error;
-
-        if (data) {
-          setFormData({
-            datadis_password: data.datadis_password
-              ? decryptPassword(data.datadis_password)
-              : "",
-            nif: data.nif || "",
-          });
-        }
-      } catch (error) {
-        console.error("Error al cargar el perfil:", error.message);
-      }
-    };
-
-    if (user) {
-      fetchProfile();
-    }
-  }, [user]);
-
-  // Función para validar todos los campos
-  const validateFields = () => {
-    const errors = {
-      datadis_password: "",
-    };
-
-    // Validar contraseña de Datadis
-    if (!formData.datadis_password) {
-      errors.datadis_password = "La contraseña de Datadis es requerida";
-    }
-
-    setValidationErrors(errors);
-    return !Object.values(errors).some((error) => error) && !nifError;
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-
-    // Validación específica para NIF
-    if (name === "nif") {
-      const { isValid, error } = validateNIF(value);
-      setNifError(error || "");
-    }
-
-    // Limpiar error de validación cuando el usuario empieza a escribir
-    if (validationErrors[name]) {
-      setValidationErrors((prev) => ({
-        ...prev,
-        [name]: "",
-      }));
-    }
-
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Validar todos los campos antes de enviar
-    if (!validateFields()) {
-      return;
-    }
-
-    setLoading(true);
-    setError("");
-    setSuccess(false);
-
-    // Validar NIF antes de enviar
-    const { isValid, error } = validateNIF(formData.nif);
-    if (!isValid) {
-      setError(error);
-      setLoading(false);
-      return;
-    }
-
-    try {
-      const encryptedPassword = encryptPassword(formData.datadis_password);
-
-      const { error } = await supabase.from("profiles").upsert({
-        id: user.id,
-        datadis_password: encryptedPassword,
-        nif: formData.nif.toUpperCase().trim(),
-        updated_at: new Date().toISOString(),
-      });
-
-      if (error) throw error;
-
-      setSuccess(true);
-      setFormData((prev) => ({ ...prev, datadis_password: "" }));
-    } catch (error) {
-      if (error.code === "23505") {
-        setError("Este NIF ya está registrado en el sistema");
-      } else {
-        setError("Error al guardar los cambios. Por favor, intenta de nuevo.");
-      }
-      console.error("Error al actualizar el perfil:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Verificar si el formulario es válido
-  const isFormValid = () => {
-    return (
-      formData.datadis_password !== "" &&
-      !nifError &&
-      !Object.values(validationErrors).some((error) => error)
-    );
-  };
+  const { toast, hideToast } = useToast();
+  const {
+    formData,
+    loading,
+    success,
+    error,
+    showPassword,
+    nifError,
+    validationErrors,
+    authTestLoading,
+    tokenStatus,
+    setShowPassword,
+    handleChange,
+    handleSubmit,
+    handleAuthTest,
+    isFormValid,
+  } = useProfileForm();
 
   return (
     <div className="bg-white shadow-sm rounded-lg p-6">
+      {toast && <Toast {...toast} onClose={hideToast} />}
+
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-slate-900">Tu perfil</h2>
         <p className="mt-1 text-sm text-slate-600">
@@ -235,7 +96,7 @@ export const ProfileForm = () => {
           <input
             type="email"
             id="email"
-            value={user.email}
+            value={user?.email}
             disabled
             className="mt-1 block w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg shadow-sm text-slate-500"
           />
@@ -330,16 +191,72 @@ export const ProfileForm = () => {
           </p>
         </div>
 
-        <div className="pt-4">
+        <div className="flex flex-col md:flex-row items-center justify-between pt-4 gap-4">
           <button
             type="submit"
             disabled={loading || !isFormValid()}
-            className="w-full flex justify-center py-2 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`px-4 py-2 rounded-lg text-white font-medium ${
+              loading || !isFormValid()
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-blue-600 hover:bg-blue-700"
+            }`}
           >
             {loading ? "Guardando..." : "Guardar cambios"}
           </button>
+
+          <button
+            type="button"
+            onClick={handleAuthTest}
+            disabled={
+              authTestLoading ||
+              !isFormValid() ||
+              (tokenStatus.isValid && !tokenStatus.shouldRenew)
+            }
+            className={`px-4 py-2 rounded-lg text-white font-medium transition-colors duration-200 ${
+              authTestLoading ||
+              !isFormValid() ||
+              (tokenStatus.isValid && !tokenStatus.shouldRenew)
+                ? "bg-slate-400 cursor-not-allowed"
+                : "bg-[#6B46C1] hover:bg-[#553C9A]"
+            }`}
+            title={
+              tokenStatus.isValid && !tokenStatus.shouldRenew
+                ? "El token actual es válido y no necesita renovación"
+                : undefined
+            }
+          >
+            {authTestLoading ? (
+              <span className="flex items-center">
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Renovando...
+              </span>
+            ) : (
+              "Renovar token de Datadis"
+            )}
+          </button>
         </div>
       </form>
+
+      <TokenStatus status={tokenStatus} />
     </div>
   );
 };

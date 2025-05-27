@@ -1,4 +1,4 @@
-import { calculateInvoice, daysPerMonth } from "../helpers/calculateInvoice";
+import { calculateInvoice, daysPerMonth } from "../utils/calculateInvoice";
 
 export const InvoicePerMonth = ({ consumed, exported, month }) => {
   const days = daysPerMonth(month, 2025);
