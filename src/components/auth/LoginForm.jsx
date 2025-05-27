@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import toast from "react-hot-toast";
+import { SocialButton } from "./SocialButton";
 
 export const LoginForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, loginWithGoogle, loginWithGithub } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,7 +34,7 @@ export const LoginForm = () => {
         <div>
           <label
             htmlFor="email"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700 mb-1"
           >
             Email
           </label>
@@ -43,13 +44,14 @@ export const LoginForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="tu@email.com"
+            className="mt-1 block w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg shadow-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
           />
         </div>
         <div>
           <label
             htmlFor="password"
-            className="block text-sm font-medium text-gray-700"
+            className="block text-sm font-medium text-slate-700 mb-1"
           >
             Contraseña
           </label>
@@ -59,16 +61,35 @@ export const LoginForm = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            placeholder="••••••••"
+            className="mt-1 block w-full px-4 py-2.5 bg-white border border-slate-300 rounded-lg shadow-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
           />
         </div>
         <button
           type="submit"
           disabled={loading}
-          className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-colors duration-200"
         >
           {loading ? "Iniciando sesión..." : "Iniciar sesión"}
         </button>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-slate-200"></div>
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 bg-white text-slate-500">O continúa con</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <SocialButton provider="google" onClick={loginWithGoogle}>
+            Google
+          </SocialButton>
+          <SocialButton provider="github" onClick={loginWithGithub}>
+            GitHub
+          </SocialButton>
+        </div>
       </form>
     </div>
   );
