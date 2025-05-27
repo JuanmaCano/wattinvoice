@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useNavigate,
 } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { useAuth } from "./contexts/AuthContext";
@@ -12,6 +13,7 @@ import { MyInvoices } from "./components/MyInvoices";
 import { ProfileForm } from "./components/profile/ProfileForm";
 import { Layout } from "./components/layout/Layout";
 import { Toaster } from "react-hot-toast";
+import { useEffect } from "react";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -47,6 +49,23 @@ const AuthRoute = ({ children }) => {
   }
 
   return children;
+};
+
+const AuthCallback = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    </div>
+  );
 };
 
 const App = () => {
@@ -87,6 +106,7 @@ const App = () => {
                 </AuthRoute>
               }
             />
+            <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
         </Layout>
         <Toaster

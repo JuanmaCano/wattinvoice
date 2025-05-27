@@ -4,11 +4,11 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Link } from "react-router-dom";
 
 export const Header = () => {
-  const { user, signOut } = useAuth();
+  const { user, logout } = useAuth();
 
   const userNavigation = [
     { name: "Tu perfil", href: "/profile" },
-    { name: "Cerrar sesión", onClick: signOut },
+    { name: "Cerrar sesión", onClick: logout },
   ];
 
   return (

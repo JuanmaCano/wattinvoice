@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
-import { useToast } from "../components/ui/Toast";
+import toast from "react-hot-toast";
 import { encryptPassword, decryptPassword } from "../utils/encryption";
 import { validateNIF } from "../utils/validation";
 import { ENCRYPTION_KEY } from "../config/constants";
@@ -9,7 +9,6 @@ import { getTokenExpiration, isTokenNearExpiration } from "../utils/jwt";
 
 export const useProfileForm = () => {
   const { user } = useAuth();
-  const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -67,9 +66,9 @@ export const useProfileForm = () => {
       }
     } catch (error) {
       console.error("Error al cargar el perfil:", error);
-      showToast("Error al cargar el perfil", { type: "error" });
+      toast.error("Error al cargar el perfil");
     }
-  }, [user, showToast]);
+  }, [user]);
 
   useEffect(() => {
     fetchProfile();
@@ -142,7 +141,7 @@ export const useProfileForm = () => {
 
       setSuccess(true);
       setFormData((prev) => ({ ...prev, datadis_password: "" }));
-      showToast("Perfil actualizado correctamente", { type: "success" });
+      toast.success("Perfil actualizado correctamente");
     } catch (error) {
       const errorMessage =
         error.code === "23505"
@@ -150,7 +149,7 @@ export const useProfileForm = () => {
           : "Error al guardar los cambios. Por favor, intenta de nuevo.";
 
       setError(errorMessage);
-      showToast(errorMessage, { type: "error" });
+      toast.error(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -187,8 +186,7 @@ export const useProfileForm = () => {
 
         if (updateError) {
           console.error("Error al guardar el token:", updateError);
-          showToast("Error al guardar el token de autenticación", {
-            type: "error",
+          toast.error("Error al guardar el token de autenticación", {
             duration: 5000,
             position: "top-center",
           });
@@ -211,22 +209,19 @@ export const useProfileForm = () => {
           ? `Token actualizado (válido hasta ${expiresAt.toLocaleString()})`
           : `Token válido (válido hasta ${expiresAt.toLocaleString()})`;
 
-        showToast(message, {
-          type: "success",
+        toast.success(message, {
           duration: 4000,
           position: "top-center",
         });
       } else {
-        showToast(data.error || "Error al validar las credenciales", {
-          type: "error",
+        toast.error(data.error || "Error al validar las credenciales", {
           duration: 5000,
           position: "top-center",
         });
       }
     } catch (error) {
       console.error("Error en la autenticación:", error);
-      showToast("Error al conectar con el servidor", {
-        type: "error",
+      toast.error("Error al conectar con el servidor", {
         duration: 5000,
         position: "top-center",
       });

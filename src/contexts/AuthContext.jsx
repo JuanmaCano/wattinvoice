@@ -7,6 +7,8 @@ import {
   signOut,
   resetPassword,
   updatePassword,
+  signInWithGoogle,
+  signInWithGithub,
 } from "../lib/auth";
 
 const AuthContext = createContext({});
@@ -110,6 +112,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithGoogle = async () => {
+    try {
+      const { error } = await signInWithGoogle();
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error en login con Google:", error);
+      toast.error(error.message);
+    }
+  };
+
+  const loginWithGithub = async () => {
+    try {
+      const { error } = await signInWithGithub();
+      if (error) throw error;
+    } catch (error) {
+      console.error("Error en login con GitHub:", error);
+      toast.error(error.message);
+    }
+  };
+
   const value = {
     user,
     loading,
@@ -118,6 +140,8 @@ export const AuthProvider = ({ children }) => {
     logout,
     handleResetPassword,
     handleUpdatePassword,
+    loginWithGoogle,
+    loginWithGithub,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
