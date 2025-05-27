@@ -53,7 +53,7 @@ const AuthRoute = ({ children }) => {
   return children;
 };
 
-const App = () => {
+const AuthHandler = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -87,9 +87,14 @@ const App = () => {
     handleAuth();
   }, [navigate]);
 
+  return null;
+};
+
+const App = () => {
   return (
     <Router>
       <AuthProvider>
+        <AuthHandler />
         <Layout>
           <Routes>
             <Route
