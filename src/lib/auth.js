@@ -38,11 +38,6 @@ export const updatePassword = async (newPassword) => {
 export const signInWithGoogle = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
-    options: {
-      redirectTo: import.meta.env.PROD
-        ? "https://wattinvoice.vercel.app/"
-        : "http://localhost:5173/",
-    },
   });
   return { data, error };
 };
@@ -50,11 +45,6 @@ export const signInWithGoogle = async () => {
 export const signInWithGithub = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
-    options: {
-      redirectTo: import.meta.env.PROD
-        ? "https://wattinvoice.vercel.app/"
-        : "http://localhost:5173/",
-    },
   });
   return { data, error };
 };
