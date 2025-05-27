@@ -39,7 +39,9 @@ export const signInWithGoogle = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: `${window.location.origin}/`,
+      redirectTo: import.meta.env.PROD
+        ? "https://wattinvoice.vercel.app/"
+        : "http://localhost:5173/",
     },
   });
   return { data, error };
@@ -49,7 +51,9 @@ export const signInWithGithub = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "github",
     options: {
-      redirectTo: `${window.location.origin}/`,
+      redirectTo: import.meta.env.PROD
+        ? "https://wattinvoice.vercel.app/"
+        : "http://localhost:5173/",
     },
   });
   return { data, error };
