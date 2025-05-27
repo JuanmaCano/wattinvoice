@@ -1,11 +1,11 @@
 // Lógica de negocio para Datadis
 import { supabase } from "../config.js";
-import { encrypt, decrypt } from "../../utils/encryption.js";
+import { encryptPassword, decryptPassword } from "../../utils/encryption.js";
 
 export const datadisLogin = async (username, password) => {
   try {
     // Encriptar credenciales antes de almacenarlas
-    const encryptedPassword = await encrypt(password);
+    const encryptedPassword = await encryptPassword(password);
 
     // Almacenar credenciales en Supabase
     const { data, error } = await supabase
@@ -24,7 +24,7 @@ export const datadisLogin = async (username, password) => {
     if (error) throw error;
 
     // Generar token de sesión
-    const token = await encrypt(
+    const token = await encryptPassword(
       JSON.stringify({ username, timestamp: Date.now() })
     );
 
@@ -53,7 +53,7 @@ export const getConsumption = async (cups, startDate, endDate) => {
     if (credError) throw credError;
 
     // Desencriptar contraseña para uso futuro con la API de Datadis
-    await decrypt(credentials.password); // Guardamos la desencriptación para cuando implementemos la API real
+    await decryptPassword(credentials.password); // Guardamos la desencriptación para cuando implementemos la API real
 
     // TODO: Implementar llamada real a la API de Datadis usando las credenciales
     // Por ahora retornamos datos de ejemplo

@@ -8,14 +8,20 @@ import { dirname, resolve } from "path";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// Cargar variables de entorno
-dotenv.config({ path: resolve(__dirname, "../.env") });
+// Cargar variables de entorno desde la raíz del proyecto
+dotenv.config({ path: resolve(__dirname, "../../.env") });
 
 // Configuración de Supabase
-export const supabase = createClient(
-  process.env.VITE_SUPABASE_URL,
-  process.env.VITE_SUPABASE_ANON_KEY
-);
+const supabaseUrl = process.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY;
+
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    "Faltan las variables de entorno VITE_SUPABASE_URL o VITE_SUPABASE_ANON_KEY"
+  );
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Configuración de rate limiting
 export const rateLimitConfig = {
