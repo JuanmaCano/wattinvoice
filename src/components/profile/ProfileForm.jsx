@@ -1,8 +1,6 @@
 import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfileForm } from "../../hooks/useProfileForm";
-import { useToast } from "../ui/ToastProvider";
-import { Toast } from "../ui/ToastProvider";
 
 const TokenStatus = ({ status }) => {
   if (!status.exists) {
@@ -45,7 +43,6 @@ const TokenStatus = ({ status }) => {
 
 export const ProfileForm = () => {
   const { user } = useAuth();
-  const { toast, hideToast } = useToast();
   const {
     formData,
     loading,
@@ -65,8 +62,6 @@ export const ProfileForm = () => {
 
   return (
     <div className="bg-white shadow-sm rounded-lg p-6">
-      {toast && <Toast {...toast} onClose={hideToast} />}
-
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-slate-900">Tu perfil</h2>
         <p className="mt-1 text-sm text-slate-600">
