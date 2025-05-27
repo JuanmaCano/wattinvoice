@@ -53,51 +53,40 @@ const AuthRoute = ({ children }) => {
   return children;
 };
 
-const AuthCallback = () => {
+const App = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const handleCallback = async () => {
+    const handleAuth = async () => {
       try {
-        // Obtener el hash de la URL
         const hash = window.location.hash.substring(1);
         if (hash) {
-          // Procesar el hash y actualizar la sesión
           const params = new URLSearchParams(hash);
           const accessToken = params.get("access_token");
           const refreshToken = params.get("refresh_token");
 
           if (accessToken) {
-            // Actualizar la sesión en Supabase
             const { error } = await supabase.auth.setSession({
               access_token: accessToken,
               refresh_token: refreshToken,
             });
 
             if (error) throw error;
+
+            // Limpiar el hash de la URL
+            window.history.replaceState(null, "", "/");
           }
         }
-
-        // Redirigir a la página principal
-        navigate("/", { replace: true });
       } catch (error) {
-        console.error("Error en el callback de autenticación:", error);
+        console.error("Error en la autenticación:", error);
         toast.error("Error al procesar la autenticación");
         navigate("/login", { replace: true });
       }
     };
 
-    handleCallback();
+    handleAuth();
   }, [navigate]);
 
-  return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-    </div>
-  );
-};
-
-const App = () => {
   return (
     <Router>
       <AuthProvider>
@@ -135,7 +124,6 @@ const App = () => {
                 </AuthRoute>
               }
             />
-            <Route path="/auth/callback" element={<AuthCallback />} />
           </Routes>
         </Layout>
         <Toaster
