@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"vite\" \"npm run dev:api\"",
-    "dev:api": "cross-env NODE_ENV=development nodemon -r dotenv/config src/api/server.js",
+    "dev:api": "cross-env NODE_ENV=development nodemon -r dotenv/config server/api/server.js",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"

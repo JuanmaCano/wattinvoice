@@ -4,7 +4,7 @@
     "es2021": true,
     "node": true
   },
-  "ignorePatterns": ["src/api/**/*", "dist/**/*"],
+  "ignorePatterns": ["src/api/**/*", "dist/**/*", "vite.config.js"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -23,5 +23,13 @@
   },
   "globals": {
     "import.meta": "readonly"
-  }
+  },
+  "overrides": [
+    {
+      "files": ["src/api/**/*", "vite.config.js"],
+      "env": {
+        "node": true
+      }
+    }
+  ]
 }

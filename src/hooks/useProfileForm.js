@@ -2,10 +2,11 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { supabase } from "../lib/supabase";
 import toast from "react-hot-toast";
-import { encryptPassword, decryptPassword } from "../utils/encryption";
-import { validateNIF } from "../utils/validation";
+import { encryptPassword, decryptPassword } from "../lib/encryption";
+import { validateNIF } from "../lib/validation";
 import { ENCRYPTION_KEY } from "../config/constants";
-import { getTokenExpiration, isTokenNearExpiration } from "../utils/jwt";
+import { getTokenExpiration, isTokenNearExpiration } from "../lib/jwt";
+import { getConsumption } from "../lib/datadis";
 
 export const useProfileForm = () => {
   const { user } = useAuth();
@@ -28,6 +29,8 @@ export const useProfileForm = () => {
     isValid: false,
     shouldRenew: false,
   });
+  const [updateConsumptionLoading, setUpdateConsumptionLoading] =
+    useState(false);
 
   const fetchProfile = useCallback(async () => {
     if (!user) return;
@@ -238,6 +241,55 @@ export const useProfileForm = () => {
     );
   };
 
+  const handleUpdateConsumption = async () => {
+    if (!tokenStatus.isValid) {
+      toast.error(
+        "Necesitas un token válido de Datadis para actualizar el consumo"
+      );
+      return;
+    }
+
+    setUpdateConsumptionLoading(true);
+
+    try {
+      // Obtener los suministros del usuario
+      const { data: supplies, error: suppliesError } = await supabase
+        .from("supplies")
+        .select("cups, distributor_code")
+        .eq("user_id", user.id);
+
+      if (suppliesError) throw suppliesError;
+      if (!supplies?.length) {
+        toast.error("No hay suministros disponibles para actualizar");
+        return;
+      }
+
+      // Actualizar cada suministro
+      for (const supply of supplies) {
+        const startDate = "2025-01-01";
+        const endDate = "2025-05-31"; // Mayo 2025
+
+        const result = await getConsumption(supply.cups, startDate, endDate);
+
+        if (!result.success) {
+          console.error(
+            `Error actualizando consumo para ${supply.cups}:`,
+            result.error
+          );
+          toast.error(`Error actualizando consumo para ${supply.cups}`);
+          continue;
+        }
+      }
+
+      toast.success("Datos de consumo actualizados correctamente");
+    } catch (error) {
+      console.error("Error actualizando consumo:", error);
+      toast.error("Error al actualizar los datos de consumo");
+    } finally {
+      setUpdateConsumptionLoading(false);
+    }
+  };
+
   return {
     formData,
     loading,
@@ -248,10 +300,12 @@ export const useProfileForm = () => {
     validationErrors,
     authTestLoading,
     tokenStatus,
+    updateConsumptionLoading,
     setShowPassword,
     handleChange,
     handleSubmit,
     handleAuthTest,
     isFormValid,
+    handleUpdateConsumption,
   };
 };

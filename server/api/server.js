@@ -5,7 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import { rateLimit } from "express-rate-limit";
 import { corsConfig, rateLimitConfig } from "./config.js";
-import { datadisLoginHandler } from "./datadis/login.js";
+import datadisRouter from "./datadis/login.js";
 import { datadisConsumptionHandler } from "./datadis/consumption.js";
 import { datadisSuppliesHandler } from "./datadis/supplies.js";
 
@@ -26,7 +26,7 @@ app.get("/api/health", (req, res) => {
 });
 
 // Rutas de Datadis
-app.post("/api/datadis/login", datadisLoginHandler);
+app.use("/api/datadis", datadisRouter);
 app.get("/api/datadis/consumption", datadisConsumptionHandler);
 app.get("/api/datadis/supplies", datadisSuppliesHandler);
 

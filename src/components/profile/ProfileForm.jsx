@@ -53,10 +53,12 @@ export const ProfileForm = () => {
     validationErrors,
     authTestLoading,
     tokenStatus,
+    updateConsumptionLoading,
     setShowPassword,
     handleChange,
     handleSubmit,
     handleAuthTest,
+    handleUpdateConsumption,
     isFormValid,
   } = useProfileForm();
 
@@ -200,55 +202,101 @@ export const ProfileForm = () => {
             {loading ? "Guardando..." : "Guardar cambios"}
           </button>
 
-          <button
-            type="button"
-            onClick={handleAuthTest}
-            disabled={
-              authTestLoading ||
-              !isFormValid() ||
-              (tokenStatus.isValid && !tokenStatus.shouldRenew)
-            }
-            className={`px-4 py-2 rounded-lg text-white font-medium transition-colors duration-200 ${
-              authTestLoading ||
-              !isFormValid() ||
-              (tokenStatus.isValid && !tokenStatus.shouldRenew)
-                ? "bg-slate-400 cursor-not-allowed"
-                : "bg-[#6B46C1] hover:bg-[#553C9A]"
-            }`}
-            title={
-              tokenStatus.isValid && !tokenStatus.shouldRenew
-                ? "El token actual es válido y no necesita renovación"
-                : undefined
-            }
-          >
-            {authTestLoading ? (
-              <span className="flex items-center">
-                <svg
-                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  ></path>
-                </svg>
-                Renovando...
-              </span>
-            ) : (
-              "Renovar token de Datadis"
-            )}
-          </button>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={handleAuthTest}
+              disabled={
+                authTestLoading ||
+                !isFormValid() ||
+                (tokenStatus.isValid && !tokenStatus.shouldRenew)
+              }
+              className={`px-4 py-2 rounded-lg text-white font-medium transition-colors duration-200 ${
+                authTestLoading ||
+                !isFormValid() ||
+                (tokenStatus.isValid && !tokenStatus.shouldRenew)
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-[#6B46C1] hover:bg-[#553C9A]"
+              }`}
+              title={
+                tokenStatus.isValid && !tokenStatus.shouldRenew
+                  ? "El token actual es válido y no necesita renovación"
+                  : undefined
+              }
+            >
+              {authTestLoading ? (
+                <span className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Renovando...
+                </span>
+              ) : (
+                "Renovar token de Datadis"
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={handleUpdateConsumption}
+              disabled={updateConsumptionLoading || !tokenStatus.isValid}
+              className={`px-4 py-2 rounded-lg text-white font-medium transition-colors duration-200 ${
+                updateConsumptionLoading || !tokenStatus.isValid
+                  ? "bg-slate-400 cursor-not-allowed"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }`}
+              title={
+                !tokenStatus.isValid
+                  ? "Necesitas un token válido de Datadis para actualizar el consumo"
+                  : undefined
+              }
+            >
+              {updateConsumptionLoading ? (
+                <span className="flex items-center">
+                  <svg
+                    className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Actualizando...
+                </span>
+              ) : (
+                "Actualizar consumo 2025"
+              )}
+            </button>
+          </div>
         </div>
       </form>
 
