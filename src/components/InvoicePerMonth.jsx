@@ -1,4 +1,5 @@
 import { calculateInvoice, daysPerMonth } from "../utils/calculateInvoice";
+import { formatCurrency, formatKWh } from "../utils/formatNumbers";
 
 export const InvoicePerMonth = ({ consumed, exported, month }) => {
   const days = daysPerMonth(month, 2025);
@@ -29,12 +30,12 @@ export const InvoicePerMonth = ({ consumed, exported, month }) => {
                 {labels[key] || key}
                 {key === "energia" && (
                   <span className="ml-1 text-xs text-red-700">
-                    {consumed} kWh
+                    {formatKWh(consumed)}
                   </span>
                 )}
                 {key === "compensacion" && (
                   <span className="ml-1 text-xs text-green-700">
-                    {exported} kWh
+                    {formatKWh(exported)}
                   </span>
                 )}
               </td>
@@ -45,7 +46,7 @@ export const InvoicePerMonth = ({ consumed, exported, month }) => {
                     : "text-slate-700"
                 }`}
               >
-                {key === "compensacion" ? -value : value} €
+                {key === "compensacion" ? formatCurrency(-value) : formatCurrency(value)}
               </td>
             </tr>
           ))}

@@ -1,6 +1,7 @@
 import React from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { useProfileForm } from "../../hooks/useProfileForm";
+import { formatNumber } from "../../utils/formatNumbers";
 
 const TokenStatus = ({ status }) => {
   if (!status.exists) {
@@ -27,7 +28,7 @@ const TokenStatus = ({ status }) => {
     <div className="mt-4 p-3 bg-green-50 text-green-700 rounded-lg text-sm">
       <div className="font-medium">Token de autenticación activo</div>
       <div className="mt-1">
-        Expira en {hoursLeft}h {minutesLeft}m
+        Expira en {formatNumber(hoursLeft)}h {formatNumber(minutesLeft)}m
       </div>
       <div className="mt-1 text-xs opacity-75">
         Válido hasta: {new Date(status.expiresAt).toLocaleString()}
